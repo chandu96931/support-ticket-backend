@@ -1,63 +1,95 @@
 import os
 from pathlib import Path
-import dj_database_url
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# -------------------
 # SECURITY
-# -------------------
-
-# Get your secret key from environment variable
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "_TSFXXSHWC9pjQazXaA2Doxouzp8LdJV7ABDQJSIXijNKqX4-D5lBS-Xq-3nBuTIKY8")
-
-# Debug mode off in production
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "_fallback_secret_key_")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost").split(",")
 
-# Allowed hosts (your Render URL)
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "support-ticket-backend-ryl4.onrender.com").split(",")
+# Application definition
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 
-# -------------------
-# DATABASE
-# -------------------
+    # Third-party
+    'rest_framework',
+    'corsheaders',
+    'django_filters',
 
+    # Your apps
+    'tickets',  # replace with your app name
+]
+
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # for CORS
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+ROOT_URLCONF = 'config.urls'  # ✅ This fixes your AttributeError
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'config.wsgi.application'
+
+# Database using Render environment variables
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DB_NAME", "support_ticket_db_iowd"),
-        "USER": os.environ.get("DB_USER", "support_ticket_db_iowd_user"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", "qyjcVUc447crZoN8XLZ4A95RLBJItH0Y"),
-        "HOST": os.environ.get("DB_HOST", "dpg-d6hbiivgi27c73fnjb8g-a.singapore-postgres.render.com"),
-        "PORT": os.environ.get("DB_PORT", "5432"),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get("DB_NAME"),
+        'USER': os.environ.get("DB_USER"),
+        'PASSWORD': os.environ.get("DB_PASSWORD"),
+        'HOST': os.environ.get("DB_HOST"),
+        'PORT': os.environ.get("DB_PORT", "5432"),
     }
 }
 
-# -------------------
-# STATIC FILES
-# -------------------
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
 
-STATIC_URL = "/static/"
+# Internationalization
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+# Static files (CSS, JS)
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Use WhiteNoise to serve static files in production
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-    # ... your other middleware
-]
+# Default primary key
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# -------------------
-# OTHER SETTINGS
-# -------------------
-
-# Rest Framework example
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
-}
-
-CORS_ALLOWED_ORIGINS = [
-    "https://support-ticket-backend-ryl4.onrender.com",
-]
+# CORS
+CORS_ALLOW_ALL_ORIGINS = True  # ⚠️ Change in production if needed
