@@ -4,9 +4,19 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'your-secret-key'
-DEBUG = True
-ALLOWED_HOSTS = []
+# ==============================
+# SECURITY SETTINGS
+# ==============================
+
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
+
+DEBUG = os.environ.get("DEBUG", "True") == "True"
+
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
+
+# ==============================
+# INSTALLED APPS
+# ==============================
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -19,8 +29,13 @@ INSTALLED_APPS = [
     'rest_framework',
 ]
 
+# ==============================
+# MIDDLEWARE
+# ==============================
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -49,12 +64,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# ==============================
+# DATABASE
+# ==============================
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# ==============================
+# PASSWORD VALIDATORS
+# ==============================
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -63,19 +86,33 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# ==============================
+# INTERNATIONALIZATION
+# ==============================
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
+
+# ==============================
+# STATIC FILES
+# ==============================
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# ==============================
+# DEFAULT FIELD
+# ==============================
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# DRF + JWT Settings
+# ==============================
+# DRF + JWT
+# ==============================
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
